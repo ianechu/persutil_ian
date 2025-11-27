@@ -17,21 +17,25 @@ import net.ausiasmarch.persutil.repository.PalomaresRepository;
 public class PalomaresService {
 
     @Autowired
-    private PalomaresRepository tareaRepository;
+    private PalomaresRepository palomaresRepository;
+
+
+// Removed duplicate simple populate; the more complete populate(int) implementation further below is used.
+
 
     public PalomaresEntity get(Long id) {
-        return tareaRepository.findById(id)
+        return palomaresRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
     }
 
     public Page<PalomaresEntity> getPage(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("fechaCreacion").descending());
-        return tareaRepository.findAll(pageable);
+        return palomaresRepository.findAll(pageable);
     }
 
     public PalomaresEntity create(PalomaresEntity t) {
         t.setId(null);
-        return tareaRepository.save(t);
+        return palomaresRepository.save(t);
     }
 
     public PalomaresEntity update(Long id, PalomaresEntity t) {
@@ -41,26 +45,60 @@ public class PalomaresService {
         existing.setCategoria(t.getCategoria());
         existing.setCompletada(t.getCompletada());
         existing.setPublicado(t.getPublicado());
-        return tareaRepository.save(existing);
+        return palomaresRepository.save(existing);
     }
 
     public void delete(Long id) {
-        tareaRepository.deleteById(id);
+        palomaresRepository.deleteById(id);
     }
 
     public int populate(int amount) {
         Random rnd = new Random();
 
-        String[] categorias = {"Trabajo", "Casa", "Estudios", "Deporte", "Compras"};
+        String[] categorias = {"Trabajo", "Casa", "Estudios", "Deporte", "Compras", "Salud", "Familia", "Viajes", "Tecnología", "Hobby"};
+        String[] titulosPrefijos = {
+            "Terminar proyecto de", "Comprar", "Organizar", "Planificar", "Revisar", 
+            "Estudiar", "Leer sobre", "Hacer ejercicio en", "Llamar a", "Limpiar",
+            "Preparar", "Actualizar", "Configurar", "Aprender", "Practicar"
+        };
+        String[] objetivos = {
+            "presentación", "informe", "reunión", "entrenamiento", "cita médica",
+            "documentación", "sistema", "aplicación", "curso", "examen",
+            "casa", "oficina", "proyecto", "presupuesto", "calendario",
+            "curriculum", "portfolio", "base de datos", "servidor", "equipo"
+        };
 
         for (int i = 0; i < amount; i++) {
             PalomaresEntity t = new PalomaresEntity();
-            t.setTitulo("Tarea de ejemplo " + (i + 1));
-            t.setDescripcion("Descripción ficticia de la tarea " + (i + 1));
+            
+            // Generar títulos más variados
+            String prefijo = titulosPrefijos[rnd.nextInt(titulosPrefijos.length)];
+            String objetivo = objetivos[rnd.nextInt(objetivos.length)];
+            t.setTitulo(prefijo + " " + objetivo + " #" + (i + 1));
+            
+            // Generar descripciones más detalladas
+            String[] descripciones = {
+                "Esta es una tarea importante que requiere atención inmediata.",
+                "Tarea programada para completar durante esta semana.",
+                "Actividad de seguimiento que debe realizarse periódicamente.",
+                "Proyecto a largo plazo que necesita planificación detallada.",
+                "Tarea urgente con alta prioridad de ejecución.",
+                "Actividad opcional pero recomendable para el desarrollo personal.",
+                "Tarea colaborativa que involucra a varios miembros del equipo.",
+                "Proyecto individual que requiere concentración y dedicación."
+            };
+            t.setDescripcion(descripciones[rnd.nextInt(descripciones.length)] + " Generada automáticamente el " + java.time.LocalDateTime.now().toString().substring(0, 19));
+            
+            // Asignar categoría aleatoria
             t.setCategoria(categorias[rnd.nextInt(categorias.length)]);
-            t.setCompletada(rnd.nextBoolean());
+            
+            // Estado aleatorio con mayor probabilidad de estar pendiente
+            t.setCompletada(rnd.nextInt(100) < 30); // 30% de probabilidad de estar completada
+            
+            // Todas las tareas serán públicas
             t.setPublicado(true);
-            tareaRepository.save(t);
+            
+            palomaresRepository.save(t);
         }
         return amount;
     }

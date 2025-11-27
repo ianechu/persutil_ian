@@ -2,11 +2,6 @@ package net.ausiasmarch.persutil.entity;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -45,15 +40,12 @@ public class PalomaresEntity {
     @NotNull
     private Boolean publicado = true;
 
-    @CreationTimestamp
-    @Column(name = "fecha_creacion", updatable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime fechaCreacion;
+@Column(name = "fecha_creacion", updatable = false, insertable = false)
+private LocalDateTime fechaCreacion;
 
-    @UpdateTimestamp
-    @Column(name = "fecha_modificacion")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime fechaModificacion;
+@Column(name = "fecha_modificacion", insertable = false, updatable = false)
+private LocalDateTime fechaModificacion;
+
 
 }
 
