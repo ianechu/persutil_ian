@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import net.ausiasmarch.persutil.entity.PalomaresEntity;
-import net.ausiasmarch.persutil.service.AleatorioService;
 import net.ausiasmarch.persutil.service.PalomaresService;
 
 @CrossOrigin(origins = "*")
@@ -28,72 +27,48 @@ public class PalomaresApi {
     @Autowired
     private PalomaresService palomaresService;
 
-    @Autowired
-    private AleatorioService aleatorioService;
-
     @GetMapping("/{id}")
-    public PalomaresEntity get(@PathVariable Long id) {
-        return palomaresService.get(id);
+    public ResponseEntity<PalomaresEntity> get(@PathVariable Long id) {
+        return ResponseEntity.ok(palomaresService.get(id));
     }
 
     @GetMapping("")
-    public Page<PalomaresEntity> getPage(
+    public ResponseEntity<Page<PalomaresEntity>> getPage(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return palomaresService.getPage(page, size);
+        return ResponseEntity.ok(palomaresService.getPage(page, size));
     }
 
     @PostMapping("")
-    public PalomaresEntity create(@Valid @RequestBody PalomaresEntity t) {
-        return palomaresService.create(t);
+    public ResponseEntity<PalomaresEntity> create(@Valid @RequestBody PalomaresEntity t) {
+        return ResponseEntity.ok(palomaresService.create(t));
     }
 
     @PutMapping("/{id}")
-    public PalomaresEntity update(@PathVariable Long id, @Valid @RequestBody PalomaresEntity t) {
-        return palomaresService.update(id, t);
+    public ResponseEntity<PalomaresEntity> update(@PathVariable Long id, @Valid @RequestBody PalomaresEntity t) {
+        return ResponseEntity.ok(palomaresService.update(id, t));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         palomaresService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/populate/{amount}")
-    public int populate(@PathVariable int amount) {
-        return palomaresService.populate(amount);
+    public ResponseEntity<Integer> populate(@PathVariable int amount) {
+        return ResponseEntity.ok(palomaresService.populate(amount));
     }
+
     @GetMapping("/saludar")
     public ResponseEntity<String> saludar() {
         return new ResponseEntity<>("\"Hola desde el blog\"", HttpStatus.OK);
     }
-    
-    @GetMapping("/aleatorio/service/{min}/{max}")
-    public ResponseEntity<Integer> aleatorioUsandoServiceEnRango(
-            @PathVariable int min,
-            @PathVariable int max) {
-        return ResponseEntity.ok(
-                aleatorioService.GenerarNumeroAleatorioEnteroEnRango(min, max)
-        );
-    }
-    
-    @GetMapping("/rellena/{numTareas}")
-    public ResponseEntity<Long> rellenaTareas(
-            @PathVariable Long numTareas
-    ) {
-        long resultado = palomaresService.populate(numTareas.intValue());
-        return ResponseEntity.ok(resultado);
-    }
 
-    @PostMapping("/generar-aleatorio/{cantidad}")
-    public ResponseEntity<String> generarTareasAleatorias(@PathVariable int cantidad) {
-        if (cantidad <= 0 || cantidad > 1000) {
-            return ResponseEntity.badRequest()
-                .body("La cantidad debe estar entre 1 y 1000");
-        }
-        
-        int tareasCreadas = palomaresService.populate(cantidad);
-        return ResponseEntity.ok("Se han creado " + tareasCreadas + " tareas aleatorias en la base de datos");
+    @GetMapping("/rellena/{numTareas}")
+    public ResponseEntity<Integer> rellenaTareas(@PathVariable int numTareas) {
+        return ResponseEntity.ok(palomaresService.populate(numTareas));
     }
 
     @GetMapping("/estadisticas")
